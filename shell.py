@@ -1,7 +1,5 @@
-"""Этап 2. Оболочка с конфигурацией и выполнением стартового скрипта."""
+"""Этап 3. Оболочка с подключённой VFS (ls и cd пока заглушки)."""
 import shlex
-
-VFS_NAME = "vfs"
 
 
 class ShellError(Exception):
@@ -21,17 +19,19 @@ def parse(line):
 
 
 class Shell:
-    def __init__(self, config):
-        self.config = config  # словарь параметров запуска
+    def __init__(self, config, vfs):
+        self.config = config
+        self.vfs = vfs
         self.commands = {
             "ls": self.cmd_ls,
             "cd": self.cmd_cd,
             "exit": self.cmd_exit,
             "conf-dump": self.cmd_conf_dump,
+            "vfs-tree": self.cmd_vfs_tree,
         }
 
     def prompt(self):
-        return f"user@{VFS_NAME}:~$ "
+        return f"user@{self.vfs.name}:~$ "
 
     def execute(self, line):
         args = parse(line)
@@ -43,8 +43,7 @@ class Shell:
         return handler(args[1:])
 
     def run_script(self, path, write):
-        """Выполняет стартовый скрипт, показывая и ввод, и вывод.
-        Останавливается на первой ошибке (бросает ShellError)."""
+        """Выполняет стартовый скрипт; останавливается на первой ошибке."""
         try:
             with open(path, encoding="utf-8") as f:
                 lines = f.read().splitlines()
@@ -52,8 +51,8 @@ class Shell:
             raise ShellError(f"cannot read script '{path}': {e.strerror}")
         for number, line in enumerate(lines, 1):
             if not line.strip() or line.lstrip().startswith("#"):
-                continue  # пустые строки и комментарии пропускаем
-            write(f"{self.prompt()}{line}\n")  # имитируем ввод пользователя
+                continue
+            write(f"{self.prompt()}{line}\n")
             try:
                 out = self.execute(line)
             except ShellError as e:
@@ -73,5 +72,8 @@ class Shell:
         raise ExitShell()
 
     def cmd_conf_dump(self, args):
-        """Параметры эмулятора в формате ключ=значение."""
         return "\n".join(f"{key}={value}" for key, value in self.config.items())
+
+    def cmd_vfs_tree(self, args):
+        """Служебная команда: показать всё дерево VFS."""
+        return self.vfs.tree()

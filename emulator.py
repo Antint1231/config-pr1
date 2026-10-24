@@ -1,18 +1,30 @@
-"""Этап 2. Точка входа: параметры командной строки, отладочный вывод, запуск."""
+"""Точка входа эмулятора (этапы 3-5): параметры, загрузка VFS, запуск."""
 import argparse
-import os
 import sys
 
 from shell import ExitShell, Shell, ShellError
+from vfs import VFS, VFSError, load_vfs
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Эмулятор оболочки UNIX")
-    p.add_argument("--vfs", help="путь к физическому расположению VFS")
+    p = argparse.ArgumentParser(description="Эмулятор оболочки UNIX с VFS")
+    p.add_argument("--vfs", help="путь к CSV-файлу с VFS")
     p.add_argument("--script", help="путь к стартовому скрипту")
     p.add_argument("--headless", action="store_true",
                    help="консольный режим без GUI (для автотестов)")
     return p.parse_args()
+
+
+def report_load_error(message, headless):
+    """Сообщает об ошибке загрузки VFS."""
+    print(f"error: cannot load VFS: {message}", file=sys.stderr)
+    if not headless:
+        import tkinter as tk
+        from tkinter import messagebox
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror("Ошибка загрузки VFS", message)
+        root.destroy()
 
 
 def run_headless(shell, banner, script):
@@ -49,23 +61,27 @@ def run_headless(shell, banner, script):
 
 def main():
     args = parse_args()
+    try:
+        vfs = load_vfs(args.vfs) if args.vfs else VFS("empty")
+    except VFSError as e:
+        report_load_error(str(e), args.headless)
+        return 1
+
     config = {
         "vfs": args.vfs or "<not set>",
         "script": args.script or "<not set>",
         "headless": args.headless,
     }
-    # отладочный вывод всех заданных параметров при запуске
     banner = ["[debug] emulator parameters:"]
     banner += [f"[debug]   {key} = {value}" for key, value in config.items()]
     banner.append("")
 
-    shell = Shell(config)
+    shell = Shell(config, vfs)
     if args.headless:
         return run_headless(shell, banner, args.script)
 
-    from gui import App  # tkinter нужен только в графическом режиме
-    vfs_name = os.path.basename(args.vfs) if args.vfs else "not set"
-    App(shell, f"Эмулятор оболочки - VFS: {vfs_name}", banner, args.script).run()
+    from gui import App
+    App(shell, f"Эмулятор оболочки - VFS: {vfs.name}", banner, args.script).run()
     return 0
 
 
