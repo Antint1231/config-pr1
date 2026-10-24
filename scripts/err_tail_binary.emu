@@ -1,0 +1,4 @@
+# Ошибка: tail docs/archive/2024/data.bin
+ls
+tail docs/archive/2024/data.bin
+uname

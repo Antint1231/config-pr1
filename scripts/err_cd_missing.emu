@@ -1,0 +1,4 @@
+# Ошибка: cd no_such_dir
+cd docs
+cd no_such_dir
+uname

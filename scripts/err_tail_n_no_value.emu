@@ -1,0 +1,4 @@
+# Ошибка: tail -n
+ls
+tail -n
+uname

@@ -1,0 +1,4 @@
+# Ошибка: ls -z
+ls
+ls -z
+uname

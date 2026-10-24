@@ -1,0 +1,4 @@
+# Ошибка: du no_such_dir
+du -h
+du no_such_dir
+uname

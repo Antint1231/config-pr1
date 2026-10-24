@@ -1,0 +1,4 @@
+# Ошибка: cd a b
+cd docs
+cd a b
+uname

@@ -1,0 +1,46 @@
+# ---- ls: обычный, -l, -a, пути, файл, несколько путей ----
+ls
+ls -l
+ls -a
+ls -la
+ls docs
+ls -l docs/archive/2024
+ls readme.txt
+ls / docs
+ls empty_dir
+# ---- cd: вложенные, .., абсолютный, без аргумента ----
+cd docs
+ls
+cd archive/2024
+ls -l
+cd ../..
+cd /home/user
+cd ".."
+cd
+# ---- tail: по умолчанию 10 строк, -n, несколько файлов ----
+tail readme.txt
+tail docs/notes.txt
+tail -n 3 docs/notes.txt
+tail -n 0 docs/notes.txt
+tail -n 2 readme.txt docs/todo.txt
+# ---- uname: все режимы ----
+uname
+uname -s
+uname -n
+uname -r
+uname -v
+uname -m
+uname -o
+uname -s -r
+uname -a
+# ---- du: все режимы ----
+du
+du -h
+du -s docs
+du -sh /
+du docs/archive
+du readme.txt
+du -h docs/archive/2024/data.bin readme.txt
+# ---- служебные ----
+conf-dump
+vfs-tree

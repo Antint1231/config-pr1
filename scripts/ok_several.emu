@@ -1,0 +1,6 @@
+ls -l
+cd notes
+ls
+cd ..
+tail readme.txt
+du -h
