@@ -1,0 +1,4 @@
+# Ошибка: mv no_such new
+ls
+mv no_such new
+uname

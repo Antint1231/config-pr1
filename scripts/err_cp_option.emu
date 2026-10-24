@@ -1,0 +1,4 @@
+# Ошибка: cp -z a b
+ls
+cp -z a b
+uname

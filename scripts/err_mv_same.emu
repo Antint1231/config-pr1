@@ -1,0 +1,4 @@
+# Ошибка: mv docs docs
+ls
+mv docs docs
+uname

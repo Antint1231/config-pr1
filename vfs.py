@@ -141,3 +141,12 @@ def load_vfs(path):
         except VFSError as e:
             raise VFSError(f"invalid format: line {number}: {e}")
     return vfs
+
+
+def copy_node(node, name):
+    """Глубокая копия узла (для cp) под новым именем."""
+    new = Node(name, node.is_dir, node.data)
+    if node.is_dir:
+        for child in node.children.values():
+            new.children[child.name] = copy_node(child, child.name)
+    return new

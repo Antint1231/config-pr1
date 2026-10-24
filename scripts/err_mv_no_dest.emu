@@ -1,0 +1,4 @@
+# Ошибка: mv readme.txt
+ls
+mv readme.txt
+uname

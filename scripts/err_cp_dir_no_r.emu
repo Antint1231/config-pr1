@@ -1,0 +1,4 @@
+# Ошибка: cp docs docs2
+ls
+cp docs docs2
+uname

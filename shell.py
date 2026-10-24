@@ -1,7 +1,8 @@
-"""Этап 4. Оболочка: ls, cd, tail, uname, du работают с VFS."""
+"""Этап 5. Оболочка: добавлены cp и mv (изменяют VFS только в памяти)."""
+import posixpath
 import shlex
 
-from vfs import normalize
+from vfs import copy_node, normalize
 
 # Поля uname: (флаг, значение) в порядке вывода
 UNAME_INFO = (
@@ -67,6 +68,8 @@ class Shell:
             "tail": self.cmd_tail,
             "uname": self.cmd_uname,
             "du": self.cmd_du,
+            "cp": self.cmd_cp,
+            "mv": self.cmd_mv,
             "exit": self.cmd_exit,
             "conf-dump": self.cmd_conf_dump,
             "vfs-tree": self.cmd_vfs_tree,
@@ -229,3 +232,65 @@ class Shell:
             if child.is_dir:
                 self.du_walk(child, shown.rstrip("/") + "/" + child.name, human, lines)
         lines.append(f"{fmt_size(node.size(), human)}\t{shown}")
+
+    # --- cp и mv ---
+    def cmd_cp(self, args):
+        """cp [-r] источник ... приёмник"""
+        flags, rest = parse_flags("cp", args, "rR")
+        self.transfer("cp", rest, recursive=bool(flags), move=False)
+        return ""
+
+    def cmd_mv(self, args):
+        """mv источник ... приёмник"""
+        _, rest = parse_flags("mv", args, "")
+        self.transfer("mv", rest, recursive=True, move=True)
+        return ""
+
+    def transfer(self, cmd, args, recursive, move):
+        """Общая логика cp и mv. Если приёмник — существующая папка,
+        источники кладутся внутрь неё; иначе это новое имя."""
+        if not args:
+            raise ShellError(f"{cmd}: missing file operand")
+        if len(args) < 2:
+            raise ShellError(f"{cmd}: missing destination file operand after '{args[0]}'")
+        *sources, dest = args
+
+        dest_abs = normalize(self.cwd, dest)
+        dest_node = self.vfs.find(dest_abs)
+        into_dir = dest_node is not None and dest_node.is_dir
+        if len(sources) > 1 and not into_dir:
+            raise ShellError(f"{cmd}: target '{dest}' is not a directory")
+
+        for src in sources:
+            src_abs, src_node = self.node(src, cmd)
+            if src_abs == "/":
+                raise ShellError(f"{cmd}: cannot {cmd} the root directory")
+            if src_node.is_dir and not recursive:
+                raise ShellError(f"{cmd}: -r not specified; omitting directory '{src}'")
+
+            target_abs = posixpath.join(dest_abs, src_node.name) if into_dir else dest_abs
+            if target_abs == src_abs:
+                raise ShellError(f"{cmd}: '{src}' and '{dest}' are the same file")
+            if src_node.is_dir and target_abs.startswith(src_abs + "/"):
+                raise ShellError(f"{cmd}: cannot {cmd} '{src}' into itself")
+
+            parent_path, name = posixpath.split(target_abs)
+            parent = self.vfs.find(parent_path)
+            if parent is None or not parent.is_dir:
+                raise ShellError(f"{cmd}: cannot create '{dest}': No such file or directory")
+            old = parent.children.get(name)
+            if old is not None and old.is_dir:
+                raise ShellError(f"{cmd}: cannot overwrite directory '{dest}'")
+            if old is not None and src_node.is_dir:
+                raise ShellError(f"{cmd}: cannot overwrite non-directory '{dest}' with directory")
+
+            if move:  # переносим сам узел: убираем из старой папки, кладём в новую
+                src_parent = self.vfs.find(posixpath.dirname(src_abs))
+                del src_parent.children[src_node.name]
+                src_node.name = name
+                parent.children[name] = src_node
+            else:  # копируем: исходный узел остаётся нетронутым
+                parent.children[name] = copy_node(src_node, name)
+
+        if self.vfs.find(self.cwd) is None:  # текущую папку могли переместить
+            self.cwd = "/"

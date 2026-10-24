@@ -1,0 +1,4 @@
+cp hello.txt copy.txt
+mv copy.txt moved.txt
+ls
+vfs-tree

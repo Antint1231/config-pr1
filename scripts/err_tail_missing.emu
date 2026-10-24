@@ -1,4 +1,0 @@
-# Ошибка: tail no_such_file
-ls
-tail no_such_file
-uname

@@ -1,0 +1,4 @@
+# Ошибка: cp -r docs readme.txt
+ls
+cp -r docs readme.txt
+uname

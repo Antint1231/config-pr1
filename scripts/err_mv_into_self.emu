@@ -1,0 +1,4 @@
+# Ошибка: mv docs docs/archive
+ls
+mv docs docs/archive
+uname

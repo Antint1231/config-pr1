@@ -1,4 +1,0 @@
-# Ошибка: tail -n abc readme.txt
-ls
-tail -n abc readme.txt
-uname

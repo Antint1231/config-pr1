@@ -1,0 +1,4 @@
+# Ошибка: mv readme.txt no_dir/x
+ls
+mv readme.txt no_dir/x
+uname

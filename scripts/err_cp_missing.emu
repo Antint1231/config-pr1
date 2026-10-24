@@ -1,0 +1,4 @@
+# Ошибка: cp no_such new
+ls
+cp no_such new
+uname

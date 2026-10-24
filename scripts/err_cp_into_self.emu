@@ -1,0 +1,4 @@
+# Ошибка: cp -r docs docs/archive
+ls
+cp -r docs docs/archive
+uname

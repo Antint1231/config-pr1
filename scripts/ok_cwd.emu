@@ -1,0 +1,5 @@
+cd docs/archive
+mv /docs /moved
+ls
+cd /
+ls

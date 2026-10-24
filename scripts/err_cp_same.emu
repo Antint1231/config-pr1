@@ -1,0 +1,4 @@
+# Ошибка: cp readme.txt readme.txt
+ls
+cp readme.txt readme.txt
+uname

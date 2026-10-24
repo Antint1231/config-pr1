@@ -1,0 +1,4 @@
+# Ошибка: mv / empty_dir
+ls
+mv / empty_dir
+uname

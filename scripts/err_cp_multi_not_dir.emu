@@ -1,0 +1,4 @@
+# Ошибка: cp readme.txt .hidden docs/todo.txt
+ls
+cp readme.txt .hidden docs/todo.txt
+uname

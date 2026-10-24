@@ -1,0 +1,4 @@
+# Ошибка: cp -r docs empty_dir
+cp -r docs empty_dir
+cp -r docs empty_dir
+uname
