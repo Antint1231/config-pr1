@@ -1,42 +1,48 @@
-# Этап 1. REPL (вариант №19)
+# Этап 2. Конфигурация
 
-Минимальный прототип эмулятора оболочки UNIX с графическим интерфейсом.
+К прототипу этапа 1 добавлены параметры командной строки и стартовый скрипт.
 
 ## Что сделано
-- GUI на `tkinter`; **заголовок окна содержит имя VFS** (`Эмулятор оболочки - VFS: vfs-demo`).
-- Парсер на `shlex`: аргументы в кавычках (`"my dir"`, `'a b'`) остаются одним аргументом.
-- Команды-заглушки `ls` и `cd` печатают своё имя и аргументы.
-- Команда `exit` закрывает окно.
-- Ошибки: неизвестная команда, незакрытая кавычка.
+- Параметры: `--vfs ПУТЬ` (расположение VFS), `--script ПУТЬ` (стартовый скрипт).
+  Дополнительно `--headless` — консольный режим для автотестов.
+- При запуске выводится отладочная печать всех параметров (`[debug] ...`).
+- Стартовый скрипт: показывает и ввод (`user@vfs:~$ команда`), и вывод; пустые строки и `#`-комментарии пропускаются;
+  **останавливается на первой ошибке** и сообщает номер строки.
+- Служебная команда `conf-dump` печатает параметры в виде `ключ=значение`.
+- Тесты — скрипты реальной ОС (`tests/*.sh` и `tests/*.bat`).
 
 ## Запуск
-Нужен Python 3.8+ (tkinter входит в стандартную поставку).
 ```bash
-python3 emulator.py
+python3 emulator.py --vfs data/my_vfs.csv --script scripts/ok.emu
 ```
 
-## Демонстрация (вводить в окне)
+## Пример (стартовый скрипт с ошибкой)
 ```
-user@vfs-demo:~$ ls
+[debug] emulator parameters:
+[debug]   vfs = <not set>
+[debug]   script = scripts/error.emu
+[debug]   headless = False
+
+user@vfs:~$ ls
 command: ls
 arguments: []
-user@vfs-demo:~$ ls -l "my documents" 'a b'
-command: ls
-arguments: ['-l', 'my documents', 'a b']
-user@vfs-demo:~$ cd /home/user
-command: cd
-arguments: ['/home/user']
-user@vfs-demo:~$ cd "unclosed
-error: parse error: No closing quotation
-user@vfs-demo:~$ foo bar
-error: foo: command not found
-user@vfs-demo:~$ exit            <- окно закрывается
+user@vfs:~$ unknown-cmd arg
+error: unknown-cmd: command not found
+error: script 'scripts/error.emu' stopped at line 3
 ```
 
-## Файлы
-- `emulator.py` — точка входа, создаёт окно
-- `gui.py` — окно (вывод + строка ввода, история на стрелках вверх/вниз)
-- `shell.py` — парсер и команды
+## Тесты (скрипты реальной ОС)
+
+В папке `tests/` лежат пары `test_*.sh` (Linux/macOS/Git Bash) и `test_*.bat` (Windows).
+Они запускают эмулятор в консольном режиме `--headless`, поэтому выполняются без окна.
+
+```bash
+sh tests/run_all.sh        # Linux / macOS / Git Bash
+tests\run_all.bat          # Windows
+```
+
+Чтобы увидеть то же самое **в окне GUI**, запустите вручную без `--headless`, например:
+`python3 emulator.py --vfs data/my_vfs.csv --script scripts/ok.emu`
 
 ## Коммит
-`feat: add REPL prototype with GUI, quoted-args parser and stub commands`
+`feat: add command-line parameters, startup script and conf-dump`

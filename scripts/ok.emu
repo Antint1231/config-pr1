@@ -1,0 +1,5 @@
+# Стартовый скрипт: ввод и вывод показываются, как в диалоге
+ls
+ls -l "my documents" 'a b'
+cd /home/user
+conf-dump

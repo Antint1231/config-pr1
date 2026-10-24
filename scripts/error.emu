@@ -1,0 +1,4 @@
+# Скрипт останавливается на первой ошибке
+ls
+unknown-cmd arg
+cd /never/executed
